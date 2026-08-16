@@ -1,8 +1,15 @@
 import { Router } from "express";
-import { register } from "./auth.controller";
+import { sendOtp, verifyOtp, updateProfile, getMe } from "./auth.controller";
+import { authenticate } from "../../middleware/authMiddleware";
 
 const router = Router();
 
-router.post("/register", register);
+// Public OTP endpoints
+router.post("/send-otp", sendOtp);
+router.post("/verify-otp", verifyOtp);
+
+// Protected user endpoints (Require Bearer Token)
+router.put("/profile", authenticate, updateProfile);
+router.get("/me", authenticate, getMe);
 
 export default router;

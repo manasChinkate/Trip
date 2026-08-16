@@ -13,14 +13,59 @@ datasource db {
 }
 
 model User {
-  id         Int       @id @default(autoincrement())
-  firstName  String
-  lastName   String
-  email      String    @unique
-  password   String?
-  dob        DateTime?
-  profilePic String?
-  age        Int?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id              Int           @id @default(autoincrement())
+  firstName       String?
+  lastName        String?
+  email           String?       @unique
+  phone           String?       @unique
+  password        String?
+  dob             DateTime?
+  profilePic      String?
+  age             Int?
+  isEmailVerified Boolean       @default(false)
+  isPhoneVerified Boolean       @default(false)
+  planMembers     PlanMembers[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
+
+enum OtpType {
+  EMAIL
+  PHONE
+}
+
+model Otp {
+  id         Int      @id @default(autoincrement())
+  identifier String   // email or phone number
+  code       String
+  type       OtpType
+  expiresAt  DateTime
+  isUsed     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+
+model Plan {
+  id        Int      @id @default(autoincrement())
+  planCode  String? @unique
+  name      String?
+  startDate DateTime?
+  endDate   DateTime?
+  planMembers PlanMembers[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy Int
+  updatedBy Int?
+}
+
+model PlanMembers {
+  id        Int      @id @default(autoincrement())
+  planId    Int
+  userId    Int
+  role      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id])
+  plan Plan @relation(fields: [planId], references: [id])
+}
+
