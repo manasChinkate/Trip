@@ -46,16 +46,19 @@ model Otp {
 
 
 model Plan {
-  id        Int      @id @default(autoincrement())
-  planCode  String? @unique
-  name      String?
-  startDate DateTime?
-  endDate   DateTime?
-  planMembers PlanMembers[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  createdBy Int
-  updatedBy Int?
+  id            Int            @id @default(autoincrement())
+  planCode      String?        @unique
+  name          String?
+  startDate     DateTime?
+  endDate       DateTime?
+  planMembers   PlanMembers[]
+  itineraryDays ItineraryDay[]
+  bookings      Booking[]
+  attachments   Attachment[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  createdBy     Int
+  updatedBy     Int?
 }
 
 model PlanMembers {
@@ -65,7 +68,118 @@ model PlanMembers {
   role      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user User @relation(fields: [userId], references: [id])
-  plan Plan @relation(fields: [planId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  plan      Plan     @relation(fields: [planId], references: [id])
 }
+
+enum ItineraryCategory {
+  ACTIVITY
+  FLIGHT
+  TRAIN
+  BUS
+  HOTEL
+  RESTAURANT
+  SIGHTSEEING
+  NOTE
+}
+
+enum BookingType {
+  HOTEL
+  FLIGHT
+  TRAIN
+  BUS
+  CAB
+  EVENT_TICKET
+  OTHER
+}
+
+enum BookingStatus {
+  PLANNED
+  CONFIRMED
+  CANCELLED
+}
+
+enum DocumentType {
+  TICKET
+  HOTEL_VOUCHER
+  PASSPORT_VISA
+  RECEIPT
+  OTHER
+}
+
+model ItineraryDay {
+  id        Int             @id @default(autoincrement())
+  planId    Int
+  dayNumber Int
+  date      DateTime
+  title     String?
+  notes     String?
+  plan      Plan            @relation(fields: [planId], references: [id], onDelete: Cascade)
+  items     ItineraryItem[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@unique([planId, dayNumber])
+}
+
+model ItineraryItem {
+  id             Int               @id @default(autoincrement())
+  itineraryDayId Int
+  title          String
+  description    String?
+  category       ItineraryCategory @default(ACTIVITY)
+  startTime      DateTime?
+  endTime        DateTime?
+  location       String?
+  googlePlaceId  String?
+  estimatedCost  Float?
+  currency       String?           @default("INR")
+  bookingId      Int?
+  booking        Booking?          @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  attachments    Attachment[]
+  itineraryDay   ItineraryDay      @relation(fields: [itineraryDayId], references: [id], onDelete: Cascade)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+model Booking {
+  id                 Int             @id @default(autoincrement())
+  planId             Int
+  type               BookingType
+  title              String
+  provider           String?
+  confirmationNumber String?
+  startDateTime      DateTime?
+  endDateTime        DateTime?
+  totalCost          Float?
+  currency           String?         @default("INR")
+  address            String?
+  contactInfo        String?
+  notes              String?
+  status             BookingStatus   @default(CONFIRMED)
+  plan               Plan            @relation(fields: [planId], references: [id], onDelete: Cascade)
+  itineraryItems     ItineraryItem[]
+  attachments        Attachment[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+}
+
+model Attachment {
+  id              Int            @id @default(autoincrement())
+  planId          Int
+  bookingId       Int?
+  itineraryItemId Int?
+  fileName        String
+  fileUrl         String
+  fileType        String
+  fileSize        Int?
+  category        DocumentType   @default(OTHER)
+  uploadedBy      Int
+  plan            Plan           @relation(fields: [planId], references: [id], onDelete: Cascade)
+  booking         Booking?       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  itineraryItem   ItineraryItem? @relation(fields: [itineraryItemId], references: [id], onDelete: Cascade)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
 
