@@ -1,9 +1,12 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { PlansPage } from "@/pages/PlansPage";
-import { LoginPage } from "@/pages/LoginPage";
-import { ProfilePage } from "@/pages/ProfilePage";
-import { ItineraryPage } from "@/pages/ItineraryPage";
-import { ProtectedRoute, PublicOnlyRoute } from "@/components/routes/ProtectedRoute";
+import { Routes, Route, Navigate } from "react-router-dom"
+import { PlansPage } from "@/pages/PlansPage"
+import { LoginPage } from "@/pages/LoginPage"
+import { ProfilePage } from "@/pages/ProfilePage"
+import {
+  ProtectedRoute,
+  PublicOnlyRoute,
+} from "@/components/routes/ProtectedRoute"
+import PlanDetailPage from "@/features/planDetail/pages/PlanDetailPage"
 
 export function AppRoutes() {
   return (
@@ -14,7 +17,7 @@ export function AppRoutes() {
         path="/plans/:planId/itinerary"
         element={
           <ProtectedRoute>
-            <ItineraryPage />
+            <PlanDetailPage />
           </ProtectedRoute>
         }
       />
@@ -40,6 +43,5 @@ export function AppRoutes() {
       {/* Fallback Routes */}
       <Route path="*" element={<Navigate to="/plans" replace />} />
     </Routes>
-  );
+  )
 }
-
